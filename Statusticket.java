@@ -4,7 +4,7 @@
  * permitia valores inconsistentes (ex: "fechado", "Fechado", "cancelado").
  * Virou enum após revisão de IA na Atividade 7 - sugestão aceita.
  */
-public enum StatusTicket {
+enum StatusTicket {
     ABERTO,
     FECHADO
 }

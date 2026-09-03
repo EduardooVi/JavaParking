@@ -1,22 +1,25 @@
 /**
  * Representa os veículos que utilizam o estacionamento.
- * Responsabilidade (conforme modelagem da Atividade 3): guardar os dados
- * do veículo e representar suas ações de entrada, saída e estacionamento.
+ * Responsabilidade: guardar os dados comuns a qualquer veículo e
+ * representar os comportamentos comuns de entrada, saída e estacionamento.
+ *
+ * (Etapa 3 - Atividade 2) Virou superclasse abstrata: não existe, no nosso
+ * domínio, um "Veículo genérico" que não seja Carro, Moto ou Caminhonete.
+ * Cada veículo real sempre é de um desses três tipos, então impedir
+ * `new Veiculo(...)` direto mantém o modelo fiel ao domínio.
  */
-public class Veiculo {
+public abstract class Veiculo {
 
-    // Atributos privados: encapsulamento (sugestão de IA aceita na Atividade 5)
+    // Atributos comuns a qualquer tipo de veículo (Encontro 1, pergunta 5)
     private String placa;
     private String modelo;
     private String cor;
-    private String proprietario; // atributo previsto na modelagem, estava faltando
+    private String proprietario;
     private TipoVeiculo tipo;
 
-    public Veiculo(String placa, String modelo, String cor, String proprietario, TipoVeiculo tipo) {
-        // Validação no construtor (Atividade 6): o veículo precisa nascer
-        // válido. Antes, essa checagem só existia dentro do Ticket — mas
-        // quem deveria garantir dados coerentes é o próprio Veiculo, não
-        // uma classe que apenas o utiliza depois.
+    // Construtor "protected": só as subclasses podem chamar, via super(...).
+    // Ninguém de fora consegue criar um Veiculo "puro".
+    protected Veiculo(String placa, String modelo, String cor, String proprietario, TipoVeiculo tipo) {
         if (placa == null || placa.isBlank()) {
             throw new IllegalArgumentException("Placa inválida: não pode ser vazia.");
         }
@@ -57,10 +60,9 @@ public class Veiculo {
         return tipo;
     }
 
-    // --- Comportamentos previstos na modelagem (Atividade 3) ---
-    // Antes, só a Vaga tinha ocupar()/liberar(). Aqui o Veículo passa a ter
-    // sua própria ação de entrar/sair/estacionar, delegando a mudança de
-    // estado da vaga para a própria Vaga (cada classe cuida do que é seu).
+    // --- Comportamentos comuns (Encontro 1, pergunta 5): entrar, sair e
+    // estacionar são iguais pra qualquer tipo de veículo, então ficam aqui
+    // na superclasse em vez de repetidos em cada subclasse. ---
 
     /** O veículo entra no estabelecimento (evento anterior a ocupar uma vaga). */
     public void entrar() {
@@ -83,4 +85,15 @@ public class Veiculo {
         System.out.println("Placa: " + placa + " | Modelo: " + modelo + " | Cor: " + cor
                 + " | Proprietário: " + proprietario + " | Tipo: " + tipo);
     }
+
+    // --- Contrato comum, comportamento específico (Etapa 3 - Atividade 8) ---
+    // Antes, quem decidia a tarifa era o Ticket, com um switch perguntando
+    // "que tipo é esse?". Isso foi um sinal de herança faltando (Atividade 4).
+    // Agora cada subclasse SABE sua própria tarifa - é ela quem responde,
+    // não uma classe externa checando o tipo.
+    /**
+     * Tarifa cobrada por hora de permanência. Cada subclasse fornece seu
+     * próprio valor.
+     */
+    public abstract double getTarifaHora();
 }

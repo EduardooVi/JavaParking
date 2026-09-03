@@ -4,13 +4,21 @@ public class Main {
     public static void main(String[] args) {
 
         // Criando veículos de tipos diferentes, com proprietário
-        Veiculo carro1 = new Veiculo("ABC-1234", "Fiat Uno", "Branco", "Maria Silva", TipoVeiculo.CARRO);
-        Veiculo moto1 = new Veiculo("MTO-0001", "Honda CG", "Vermelha", "João Souza", TipoVeiculo.MOTO);
-        Veiculo caminhonete1 = new Veiculo("CAM-9999", "Toyota Hilux", "Cinza", "Ana Costa", TipoVeiculo.CAMINHONETE);
+        // (Etapa 3 - Atividade 2) Agora instanciamos as subclasses, não mais
+        // Veiculo diretamente - o tipo já vem definido por qual subclasse é usada.
+        Carro carro1 = new Carro("ABC-1234", "Fiat Uno", "Branco", "Maria Silva", 4);
+        Moto moto1 = new Moto("MTO-0001", "Honda CG", "Vermelha", "João Souza", false);
+        Caminhonete caminhonete1 = new Caminhonete("CAM-9999", "Toyota Hilux", "Cinza", "Ana Costa", 1.5);
 
         carro1.exibirDados();
         moto1.exibirDados();
         caminhonete1.exibirDados();
+
+        // Evidenciando que cada subclasse tem, de fato, algo próprio
+        // (não é herança "só por ter o mesmo nome de atributo")
+        System.out.println("-> Carro tem " + carro1.getNumeroPortas() + " portas");
+        System.out.println("-> Moto possui baú? " + moto1.isPossuiBau());
+        System.out.println("-> Caminhonete carrega até " + caminhonete1.getCapacidadeCargaToneladas() + " toneladas");
 
         // Vagas do estacionamento
         Vaga vaga1 = new Vaga(1);
@@ -76,9 +84,10 @@ public class Main {
         // ---- 2 tentativas de alteração/criação inválida ----
 
         // [Tentativa inválida 1] veículo com placa vazia.
-        // A validação está no construtor de Veiculo: o objeto não chega a existir.
+        // A validação está no construtor de Veiculo (herdada por Carro via super()):
+        // o objeto não chega a existir.
         try {
-            new Veiculo("", "Sem Placa", "Preto", "Desconhecido", TipoVeiculo.CARRO);
+            new Carro("", "Sem Placa", "Preto", "Desconhecido", 4);
         } catch (IllegalArgumentException e) {
             System.out.println("[Tentativa inválida 1] Erro ao criar veículo: " + e.getMessage());
         }
@@ -108,5 +117,30 @@ public class Main {
         System.out.println();
         System.out.println("[Método de domínio x setter genérico] tentando ocupar vaga já ocupada:");
         vaga2.ocupar(carro1); // vaga2 já está ocupada pela moto1 -> apenas avisa, não corrompe o estado
+
+        // ---------------------------------------------------------------
+        // Atividade 9 — Demonstrando polimorfismo
+        // ---------------------------------------------------------------
+        // Aqui está o ponto central: as variáveis são declaradas do tipo da
+        // SUPERCLASSE (Veiculo), mas cada uma aponta pra um objeto real de
+        // uma subclasse diferente. Quando chamamos getTarifaHora() em cada
+        // uma, o Java executa a versão SOBRESCRITA pela classe REAL do
+        // objeto, não uma versão genérica de "Veiculo" (que nem existe,
+        // já que o método é abstrato lá).
+        System.out.println();
+        System.out.println("===== Polimorfismo (Atividade 9) =====");
+
+        Veiculo v1 = carro1;        // declarado Veiculo, mas o objeto real é um Carro
+        Veiculo v2 = moto1;         // declarado Veiculo, mas o objeto real é uma Moto
+        Veiculo v3 = caminhonete1;  // declarado Veiculo, mas o objeto real é uma Caminhonete
+
+        Veiculo[] frota = { v1, v2, v3 };
+        for (Veiculo v : frota) {
+            // Mesma chamada de método (v.getTarifaHora()) em todos os casos,
+            // mas o resultado muda de acordo com o objeto real por trás da
+            // referência - não com o tipo declarado da variável.
+            System.out.printf("%s (declarado como Veiculo, objeto real: %s) -> tarifa R$ %.2f/h%n",
+                    v.getModelo(), v.getClass().getSimpleName(), v.getTarifaHora());
+        }
     }
 }

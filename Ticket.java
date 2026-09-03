@@ -10,11 +10,6 @@ import java.time.LocalDateTime;
  */
 public class Ticket {
 
-    // Tarifa por hora, de acordo com o tipo do veículo
-    private static final double TARIFA_HORA_MOTO = 5.00;
-    private static final double TARIFA_HORA_CARRO = 8.00;
-    private static final double TARIFA_HORA_CAMINHONETE = 12.00;
-
     private Veiculo veiculo;
     private LocalDateTime horaEntrada;
     private LocalDateTime horaSaida;
@@ -53,24 +48,16 @@ public class Ticket {
         }
     }
 
-    // Tarifa por hora de acordo com o tipo do veículo
-    private double tarifaPorTipo(TipoVeiculo tipo) {
-        switch (tipo) {
-            case MOTO:
-                return TARIFA_HORA_MOTO;
-            case CARRO:
-                return TARIFA_HORA_CARRO;
-            case CAMINHONETE:
-                return TARIFA_HORA_CAMINHONETE;
-            default:
-                throw new IllegalStateException("Tipo de veículo sem tarifa definida: " + tipo);
-        }
-    }
-
     /**
      * Calcula o valor a cobrar com base no tempo estacionado (arredondado
      * para cima, hora cheia, mínimo de 1 hora) multiplicado pela tarifa do
-     * tipo do veículo.
+     * veículo.
+     *
+     * (Etapa 3 - Atividade 8) Antes, este método perguntava "que tipo é
+     * esse?" através de um switch (tarifaPorTipo). Agora o próprio veículo
+     * responde sua tarifa via getTarifaHora() - método sobrescrito por
+     * Carro, Moto e Caminhonete. O Ticket não precisa mais saber que tipos
+     * de veículo existem; é polimorfismo substituindo a decisão condicional.
      */
     private double calcularValor(LocalDateTime momentoSaida) {
         long minutos = Duration.between(horaEntrada, momentoSaida).toMinutes();
@@ -78,7 +65,7 @@ public class Ticket {
         if (horas < 1) {
             horas = 1; // cobrança mínima de 1 hora
         }
-        return horas * tarifaPorTipo(veiculo.getTipo());
+        return horas * veiculo.getTarifaHora();
     }
 
     /**

@@ -53,13 +53,60 @@ public class Main {
         carro1.sair(vaga1);
         vaga1.exibirStatus();
 
-        // Demonstrando a validação: tentando gerar ticket para veículo com placa vazia
+        // ---------------------------------------------------------------
+        // Atividade 8 — Testes de estado válido e inválido
+        // ---------------------------------------------------------------
         System.out.println();
+        System.out.println("===== Testes de validação (Atividade 8) =====");
+
+        // ---- 2 criações válidas de objetos ----
+        // (Já demonstradas no início do main: carro1, moto1 e caminhonete1
+        // nasceram com dados válidos, passando pela validação do construtor
+        // de Veiculo sem lançar exceção.)
+        System.out.println("[Criação válida 1] Veículo criado: " + carro1.getPlaca());
+        System.out.println("[Criação válida 2] Vaga criada: número " + vaga1.getNumero());
+
+        // ---- 2 operações válidas ----
+        // (Também já demonstradas acima: carro1.estacionar(vaga1) mudou o
+        // estado da vaga corretamente, e ticketCarro.fecharTicket() calculou
+        // e fechou o ticket com sucesso.)
+        System.out.println("[Operação válida 1] carro1.estacionar(vaga1) -> vaga ficou ocupada");
+        System.out.println("[Operação válida 2] ticketCarro.fecharTicket() -> status ficou " + ticketCarro.getStatus());
+
+        // ---- 2 tentativas de alteração/criação inválida ----
+
+        // [Tentativa inválida 1] veículo com placa vazia.
+        // A validação está no construtor de Veiculo: o objeto não chega a existir.
         try {
-            Veiculo veiculoInvalido = new Veiculo("", "Sem Placa", "Preto", "Desconhecido", TipoVeiculo.CARRO);
-            new Ticket(veiculoInvalido);
+            new Veiculo("", "Sem Placa", "Preto", "Desconhecido", TipoVeiculo.CARRO);
         } catch (IllegalArgumentException e) {
-            System.out.println("Erro ao gerar ticket: " + e.getMessage());
+            System.out.println("[Tentativa inválida 1] Erro ao criar veículo: " + e.getMessage());
         }
+
+        // [Tentativa inválida 2] vaga com número inválido (zero ou negativo).
+        try {
+            new Vaga(-5);
+        } catch (IllegalArgumentException e) {
+            System.out.println("[Tentativa inválida 2] Erro ao criar vaga: " + e.getMessage());
+        }
+
+        // Tentativa extra (bônus, além do mínimo de 2): ticket com saída
+        // anterior à entrada.
+        try {
+            Ticket ticketInvalido = new Ticket(moto1, LocalDateTime.now());
+            ticketInvalido.fecharTicket(LocalDateTime.now().minusHours(1));
+        } catch (IllegalArgumentException e) {
+            System.out.println("[Tentativa inválida extra] Erro ao fechar ticket: " + e.getMessage());
+        }
+
+        // ---- 1 caso em que um método de negócio protege melhor que um setter genérico ----
+        // Vaga NÃO expõe setOcupada(boolean). Se expusesse, seria possível
+        // fazer vaga2.setOcupada(true) sem vincular nenhum veículo, deixando
+        // ocupada=true e veiculoAtual=null (estado inconsistente).
+        // Com ocupar(), a regra "não ocupar vaga já ocupada" é garantida
+        // dentro do próprio objeto, e o estado nunca fica inconsistente.
+        System.out.println();
+        System.out.println("[Método de domínio x setter genérico] tentando ocupar vaga já ocupada:");
+        vaga2.ocupar(carro1); // vaga2 já está ocupada pela moto1 -> apenas avisa, não corrompe o estado
     }
 }

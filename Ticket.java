@@ -19,7 +19,9 @@ public class Ticket {
     private LocalDateTime horaEntrada;
     private LocalDateTime horaSaida;
     private double valor;
-    private String status; // "ABERTO" enquanto o veículo está estacionado, "FECHADO" após o pagamento
+    private StatusTicket status; // ABERTO enquanto o veículo está estacionado, FECHADO após o pagamento
+    // (Atividade 7) Antes era String livre; virou enum após revisão de IA,
+    // para impedir valores inconsistentes que uma String permitiria.
 
     public Ticket(Veiculo veiculo) {
         this(veiculo, LocalDateTime.now());
@@ -36,20 +38,18 @@ public class Ticket {
         this.horaEntrada = horaEntrada;
         this.horaSaida = null;
         this.valor = 0.0;
-        this.status = "ABERTO";
+        this.status = StatusTicket.ABERTO;
     }
 
-    // Validação da entrada do veículo: garante dados mínimos consistentes
-    // antes de gerar o ticket, lançando exceção em vez de criar um ticket inválido.
+    // Validação da entrada do veículo (Atividade 6 - revisão): antes, este
+    // método também checava placa e tipo. Isso foi removido daqui porque
+    // essa responsabilidade agora pertence ao próprio Veiculo, que já
+    // garante nascer válido em seu construtor. Um Veiculo que existe já é,
+    // por definição, um veículo com dados coerentes — o Ticket só precisa
+    // garantir que recebeu uma referência de verdade, não nula.
     private void validarVeiculo(Veiculo veiculo) {
         if (veiculo == null) {
             throw new IllegalArgumentException("Veículo não pode ser nulo.");
-        }
-        if (veiculo.getPlaca() == null || veiculo.getPlaca().isBlank()) {
-            throw new IllegalArgumentException("Placa inválida: não pode ser vazia.");
-        }
-        if (veiculo.getTipo() == null) {
-            throw new IllegalArgumentException("Tipo de veículo não informado.");
         }
     }
 
@@ -91,22 +91,35 @@ public class Ticket {
 
     /** Versão que aceita um horário de saída específico (para testes/demonstração). */
     public double fecharTicket(LocalDateTime momentoSaida) {
-        if (status.equals("FECHADO")) {
+        if (status == StatusTicket.FECHADO) {
             System.out.println("Este ticket já está fechado.");
             return valor;
         }
+        // Validação no fechamento (Atividade 6): uma saída anterior à
+        // entrada geraria tempo negativo e, consequentemente, um valor de
+        // cobrança negativo — um estado impossível no domínio.
+        if (momentoSaida.isBefore(horaEntrada)) {
+            throw new IllegalArgumentException(
+                    "Hora de saída não pode ser anterior à hora de entrada.");
+        }
         this.horaSaida = momentoSaida;
         this.valor = calcularValor(momentoSaida);
-        this.status = "FECHADO";
+        this.status = StatusTicket.FECHADO;
         return valor;
     }
 
-    public String getStatus() {
+    public StatusTicket getStatus() {
         return status;
     }
 
     public double getValor() {
         return valor;
+    }
+
+    // Getter legítimo: outras classes podem precisar consultar quando o
+    // veículo entrou, sem depender de imprimir o comprovante inteiro.
+    public LocalDateTime getHoraEntrada() {
+        return horaEntrada;
     }
 
     /** Mostra o comprovante do ticket no console. */

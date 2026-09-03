@@ -13,6 +13,20 @@ public class Veiculo {
     private TipoVeiculo tipo;
 
     public Veiculo(String placa, String modelo, String cor, String proprietario, TipoVeiculo tipo) {
+        // Validação no construtor (Atividade 6): o veículo precisa nascer
+        // válido. Antes, essa checagem só existia dentro do Ticket — mas
+        // quem deveria garantir dados coerentes é o próprio Veiculo, não
+        // uma classe que apenas o utiliza depois.
+        if (placa == null || placa.isBlank()) {
+            throw new IllegalArgumentException("Placa inválida: não pode ser vazia.");
+        }
+        if (modelo == null || modelo.isBlank()) {
+            throw new IllegalArgumentException("Modelo inválido: não pode ser vazio.");
+        }
+        if (tipo == null) {
+            throw new IllegalArgumentException("Tipo de veículo não informado.");
+        }
+
         this.placa = placa;
         this.modelo = modelo;
         this.cor = cor;

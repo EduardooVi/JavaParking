@@ -10,6 +10,13 @@ public class Vaga {
     private Veiculo veiculoAtual; // relacionamento Vaga-Veiculo (sugestão de IA aceita)
 
     public Vaga(int numero) {
+        // Validação no construtor (Atividade 6): uma vaga não pode nascer
+        // com número zero ou negativo, pois não existe fisicamente no
+        // estacionamento.
+        if (numero <= 0) {
+            throw new IllegalArgumentException("Número da vaga inválido: deve ser maior que zero.");
+        }
+
         this.numero = numero;
         this.ocupada = false;
         this.veiculoAtual = null;
@@ -17,6 +24,13 @@ public class Vaga {
 
     public int getNumero() {
         return numero;
+    }
+
+    // Getter legítimo: outras classes (ex: relatórios, o próprio Main)
+    // podem precisar saber QUAL veículo está na vaga, sem depender de
+    // exibirStatus() apenas imprimir no console.
+    public Veiculo getVeiculoAtual() {
+        return veiculoAtual;
     }
 
     // Comportamento: muda o estado da vaga (sugestão de IA aceita na Atividade 5)
